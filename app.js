@@ -12,7 +12,7 @@ const dbName = "a2";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-async function start() {
+const start = async () => {
   try {
     // Use connect method to connect to the server
     await client.connect();
@@ -30,6 +30,6 @@ async function start() {
   } catch (err) {
     console.error(err);
   }
-}
+};
 
 start();

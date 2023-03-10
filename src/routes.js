@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 module.exports = (db) => {
+  // Get all movies
   router.get("/movies", async (req, res) => {
     try {
       const cursor = db.collection("movies").find();
