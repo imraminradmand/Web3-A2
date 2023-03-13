@@ -152,6 +152,8 @@ module.exports = (db) => {
 			const filteredResults = results.map(({ _id, ...rest }) => rest);
 
 			if (filteredResults.length === 0) {
+				//ERRORING OUT HERE
+				//WHEN I GET A LIST THAT IS EMPTY, IT CRASHES
 				res.status(404).json({
 					status: "Error",
 					message: "No movies found",
@@ -267,7 +269,6 @@ module.exports = (db) => {
 		}
 
 		try {
-			// STILL NEED TO FIGURE OUT HOW TO FIND IT IF IT CONTAIN THE WORD NOT JUST AT THE BEGINNING
 			const cursor = db.collection("movies").find({
 				"details.genres": {
 					$elemMatch: { name: { $regex: new RegExp(lowerName, "i") } },
