@@ -57,5 +57,38 @@ module.exports = (db) => {
     }
   });
 
+  // Get movie by ID
+  router.get("/movies/:id", async (req, res) => {
+    const { id } = req.params;
+
+    if (isNaN(id) || parseInt(id) < 1) {
+      res.status(400).json({
+        status: "Error",
+        message: "Invalid movie ID",
+      });
+      return;
+    }
+
+    try {
+      const cursor = db.collection("movies").find({ id: parseInt(id) });
+      const results = await cursor.toArray();
+      const filteredResults = results.map(({ _id, ...rest }) => rest);
+
+      if (filteredResults.length === 0) {
+        res.status(404).json({
+          status: "Error",
+          message: "Movie not found",
+        });
+      }
+
+      res.status(200).json(filteredResults[0]);
+    } catch (err) {
+      res.status(500).json({
+        status: "Error",
+        message: "Internal server error",
+      });
+    }
+  });
+
   return router;
 };
