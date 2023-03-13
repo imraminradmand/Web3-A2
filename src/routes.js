@@ -254,5 +254,44 @@ module.exports = (db) => {
 
 	// Get movies by genre
 
+	router.get("/movies/genre/:name", async (req, res) => {
+		const { name } = req.params;
+		lowerName = name.toLowerCase();
+
+		if (lowerName === undefined || lowerName === "") {
+			res.status(400).json({
+				status: "Error",
+				message: "Invalid genre name",
+			});
+			return;
+		}
+
+		try {
+			// STILL NEED TO FIGURE OUT HOW TO FIND IT IF IT CONTAIN THE WORD NOT JUST AT THE BEGINNING
+			const cursor = db.collection("movies").find({
+				"details.genres": {
+					$elemMatch: { name: { $regex: new RegExp(lowerName, "i") } },
+				},
+			});
+
+			const results = await cursor.toArray();
+			const filteredResults = results.map(({ _id, ...rest }) => rest);
+
+			if (filteredResults.length === 0) {
+				res.status(404).json({
+					status: "Error",
+					message: "Genre not found",
+				});
+			}
+
+			res.status(200).json(filteredResults[0]);
+		} catch (err) {
+			res.status(500).json({
+				status: "Error",
+				message: "Internal server error",
+			});
+		}
+	});
+
 	return router;
 };
