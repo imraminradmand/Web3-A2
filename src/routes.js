@@ -90,5 +90,46 @@ module.exports = (db) => {
     }
   });
 
+  // Get movies within year range
+  router.get("/movies/year/:min/:max", async (req, res) => {
+    const { min, max } = req.params;
+
+    if (
+      isNaN(min) ||
+      isNaN(max) ||
+      parseInt(min) < 1 ||
+      parseInt(max) < 1 ||
+      parseInt(min) > parseInt(max)
+    ) {
+      res.status(400).json({
+        status: "Error",
+        message: "Invalid year range",
+      });
+      return;
+    }
+
+    try {
+      const cursor = db
+        .collection("movies")
+        .find({ release_date: { $gte: min, $lte: max } });
+      const results = await cursor.toArray();
+      const filteredResults = results.map(({ _id, ...rest }) => rest);
+
+      if (filteredResults.length === 0) {
+        res.status(404).json({
+          status: "Error",
+          message: "No movies found",
+        });
+      }
+
+      res.status(200).json(filteredResults);
+    } catch (err) {
+      res.status(500).json({
+        status: "Error",
+        message: "Internal server error",
+      });
+    }
+  });
+
   return router;
 };
